@@ -1,0 +1,10 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =8
+let g:netrw_dirhist_1='/home/mikeyhc/workspace/chr'
+let g:netrw_dirhist_2='/home/mikeyhc/workspace/rpos/rpos-static/src/login'
+let g:netrw_dirhist_3='/home/mikeyhc/workspace/rpos/rpos-static/node_modules/react-router'
+let g:netrw_dirhist_4='/home/mikey/workspace/build/aur/dwm-git'
+let g:netrw_dirhist_5='/home/mikey/workspace/stx/stw'
+let g:netrw_dirhist_6='/home/mikey/workspace/build/aur/libopenssl-1.0-compat/pkg/libopenssl-1.0-compat'
+let g:netrw_dirhist_7='/tmp/tmp.4FHGOYsHDO'
+let g:netrw_dirhist_8='/home/mikey/workspace/lazybot'
