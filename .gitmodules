@@ -49,3 +49,6 @@
 [submodule "vim/bundle/vim-salve"]
 	path = vim/bundle/vim-salve
 	url = https://github.com/tpope/vim-salve
+[submodule "vim/bundle/vim-terraform"]
+	path = vim/bundle/vim-terraform
+	url = https://github.com/hashivim/vim-terraform

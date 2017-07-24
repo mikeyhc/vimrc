@@ -21,6 +21,10 @@ set tags=.tags
 filetype plugin indent on
 set expandtab
 
+" set early so can be replaced in ft blocks below
+let g:ctag_exec = "ctags"
+let g:ctag_options = "--verbose=y -R -f .tags"
+
 execute pathogen#infect()
 
 " common syntax rules {{{
@@ -262,6 +266,36 @@ augroup yaml_settings
 augroup END
 " }}}
 
+" {{{ Linker file settings
+augroup linker_settings
+    au!
+    au FileType ld setlocal shiftwidth=4 softtabstop=4 tabstop=4
+augroup END
+" }}}
+
+" {{{ asm settings
+augroup asm_settings
+    au!
+    au filetype asm setlocal shiftwidth=4 tabstop=4 softtabstop=4
+    au filetype asm setlocal indentexpr=
+augroup END
+" }}}
+
+" rust settings {{{
+let g:syntastic_rust_rustc_exe = 'cargo check'
+let g:syntastic_rust_rustc_fname = ''
+let g:syntastic_rust_rustc_args = '--'
+let g:syntastic_rust_checkers = ['rustc']
+let g:ctag_exec = "rusty-tags"
+let g:ctag_options = "vi"
+
+augroup rust_settings
+    au!
+    au FileType rust setlocal tags=./rusty-tags.vi;/
+    au FileType rust let Tlist_Ctags_Cmd="/home/mikey/.cargo/bin/rusty-tags"
+augroup END
+" }}}
+
 highlight Folded ctermbg=240 ctermfg=white
 
 noremap <silent> <Leader>e :Errors<cr>
@@ -300,14 +334,13 @@ nmap ]h <Plug>GitGutterNextHunk
 nmap [h <Plug>GitGutterPrevHunk
 
 let g:gitgutter_eager = 1
-let g:ctag_options = "--verbose=y -R -f .tags"
 let tlist_prolog_settings='prolog;p:predicate'
 
-nnoremap <F7> :execute '!ctags ' . g:ctag_options<CR>
-nnoremap <F8> :TlistToggle<CR>
-nnoremap <leader>. :CtrlPTag<CR>
-nnoremap <leader>n :lnext<CR>
-nnoremap <leader>p :lprev<CR>
+nnoremap <silent> <F7> :execute '!' . g:ctag_exec . ' ' . g:ctag_options<CR>
+nnoremap <silent> <F8> :TlistToggle<CR>
+nnoremap <silent> <leader>. :CtrlPTag<CR>
+nnoremap <silent> <leader>n :lnext<CR>
+nnoremap <silent> <leader>p :lprev<CR>
 
 function! HighlightSource()
     return synIDattr(synID(line("."), col("."), 1), "name")
@@ -356,6 +389,7 @@ nnoremap <silent> ]l :lnext<cr>
 nnoremap <silent> [l :lprevious<cr>
 
 nnoremap <silent> <leader>nt :NERDTreeToggle<cr>
+nnoremap <silent> <leader>gt :GundoToggle<cr>
 
 inoremap auth@ author: michael blockley <mikey@spotify.com>
 
