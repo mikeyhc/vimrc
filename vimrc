@@ -28,20 +28,13 @@ let g:ctag_options = "--verbose=y -R -f .tags"
 execute pathogen#infect()
 
 " common syntax rules {{{
-augroup syntax_rules
-    au!
-    syntax on
-    colorscheme slate
-    highlight VertSplit ctermfg=236
-    highlight StatusLine ctermbg=235 ctermfg=white cterm=bold
-    highlight StatusLineNC ctermbg=235 ctermfg=grey cterm=bold
-    highlight WildMenu ctermbg=red ctermfg=white
-    set fillchars+=vert:\ 
-
-    au BufRead,BufNewfile,BufEnter * highlight OverLength ctermbg=red
-                \ ctermfg=white
-    au BufRead,BufNewFile,BufEnter * match OverLength /\v(%80v.+|( |\t)+$)/
-augroup END
+syntax on
+colorscheme slate
+highlight VertSplit ctermfg=236
+highlight StatusLine ctermbg=235 ctermfg=white cterm=bold
+highlight StatusLineNC ctermbg=235 ctermfg=grey cterm=bold
+highlight WildMenu ctermbg=red ctermfg=white
+set fillchars+=vert:\ 
 "}}}
 
 " .h filetype settings {{{
@@ -51,50 +44,40 @@ augroup h_filetype
 augroup END
 " }}}
 
-" Haskell filetype settings {{{
+" haskell settings {{{
 augroup hs_filetype
     au!
     au BufRead,BufNewFile *.hsc setlocal ft=haskell
     au BufRead,BufNewFile *.lhsc setlocal ft=lhaskell
     au BufRead,BufNewFile *.cabal setlocal ft=cabal
-augroup END
-" }}}
 
-" Haskell indent settings {{{
-augroup hs_indent
-    au!
     au FileType haskell,lhaskell setlocal tabstop=4 shiftwidth=4 softtabstop=4
-    au FileType haskell,lhaskell setlocal expandtab
-
-    au FileType cabal setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+    au FileType cabal setlocal tabstop=2 shiftwidth=2 softtabstop=2
 augroup END
 " }}}
 
 " Shell indent settings {{{
 augroup sh_indent
     au!
-    au FileType sh setlocal tabstop=4 shiftwidth=4 softtabstop=4 expandtab
+    au FileType sh setlocal tabstop=4 shiftwidth=4 softtabstop=4
 augroup END
 " }}}
 
 " LaTeX indent settings {{{
 augroup tex_indent
     au!
-    au FileType tex setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+    au FileType tex setlocal tabstop=2 shiftwidth=2 softtabstop=2
     au FileType plaintex setlocal tabstop=2 shiftwidth=2 softtabstop=2
-    au FileType plaintex setlocal expandtab
 augroup END
 " }}}
 
 " Racket settings {{{
-if has("autocmd")
-    augroup racket_settings
-        au!
-        au BufReadPost *.rkt,*.rktl set filetype=racket
-        au filetype racket set lisp
-        au filetype racket set autoindent
-    augroup END
-endif
+augroup racket_settings
+    au!
+    au BufReadPost *.rkt,*.rktl set filetype=racket
+    au filetype racket set lisp
+    au filetype racket set autoindent
+augroup END
 " }}}
 
 " Scheme settings {{{
@@ -107,51 +90,75 @@ augroup END
 "}}}
 
 " Java settings {{{
+function! MvnDo(command)
+    let currwin=winnr()
+    execute 'Mvn ' . a:command
+    execute currwin . 'wincmd w'
+    redraw!
+endfunction
+
+let g:maven_detect_root = 0
+let g:syntastic_java_javac_config_file_enabled = 1
+
+nnoremap <silent> <localleader>mt :execute MvnDo('test')<cr>
+nnoremap <silent> <localleader>mb :execute MvnDo('build')<cr>
+nnoremap <silent> <localleader>mp :execute MvnDo('package')<cr>
+
+nnoremap <localleader>jI <Plug>(JavaComplete-Imports-AddMissing)
+nnoremap <localleader>jR <Plug>(JavaComplete-Imports-RemoveUnused)
+nnoremap <localleader>ji <Plug>(JavaComplete-Imports-AddSmart)
+nnoremap <localleader>jii <Plug>(JavaComplete-Imports-Add)
+
+inoremap <C-j>I <Plug>(JavaComplete-Imports-AddMissing)
+inoremap <C-j>R <Plug>(JavaComplete-Imports-RemoveUnused)
+inoremap <C-j>i <Plug>(JavaComplete-Imports-AddSmart)
+inoremap <C-j>ii <Plug>(JavaComplete-Imports-Add)
+
+nnoremap <localleader>jM <Plug>(JavaComplete-Generate-AbstractMethods)
+
+inoremap <C-j>jM <Plug>(JavaComplete-Generate-AbstractMethods)
+
+nnoremap <localleader>jA <Plug>(JavaComplete-Generate-Accessors)
+nnoremap <localleader>js <Plug>(JavaComplete-Generate-AccessorSetter)
+nnoremap <localleader>jg <Plug>(JavaComplete-Generate-AccessorGetter)
+nnoremap <localleader>ja <Plug>(JavaComplete-Generate-AccessorSetterGetter)
+nnoremap <localleader>jts <Plug>(JavaComplete-Generate-ToString)
+nnoremap <localleader>jeq <Plug>(JavaComplete-Generate-EqualsAndHashCode)
+nnoremap <localleader>jc <Plug>(JavaComplete-Generate-Constructor)
+nnoremap <localleader>jcc <Plug>(JavaComplete-Generate-DefaultConstructor)
+
+inoremap <C-j>s <Plug>(JavaComplete-Generate-AccessorSetter)
+inoremap <C-j>g <Plug>(JavaComplete-Generate-AccessorGetter)
+inoremap <C-j>a <Plug>(JavaComplete-Generate-AccessorSetterGetter)
+
+vnoremap <localleader>js <Plug>(JavaComplete-Generate-AccessorSetter)
+vnoremap <localleader>jg <Plug>(JavaComplete-Generate-AccessorGetter)
+vnoremap <localleader>ja <Plug>(JavaComplete-Generate-AccessorSetterGetter)
+
+nnoremap <silent> <buffer> <localleader>jn
+    \ <Plug>(JavaComplete-Generate-NewClass)
+nnoremap <silent> <buffer> <localleader>jN
+    \ <Plug>(JavaComplete-Generate-ClassInFile)
+
 augroup java_settings
     au!
-    au FileType java setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
-    au BufRead,BufNewFile,BufEnter java match OverLength /\v(%100v.+|( |\t)+$)/
+    au FileType java setlocal tabstop=2 shiftwidth=2 softtabstop=2
     au FileType java setlocal omnifunc=javacomplete#Complete
-    nmap <leader>jI <Plug>(JavaComplete-Imports-AddMissing)
-    nmap <leader>jR <Plug>(JavaComplete-Imports-RemoveUnused)
-    nmap <leader>ji <Plug>(JavaComplete-Imports-AddSmart)
-    nmap <leader>jii <Plug>(JavaComplete-Imports-Add)
-
-    imap <C-j>I <Plug>(JavaComplete-Imports-AddMissing)
-    imap <C-j>R <Plug>(JavaComplete-Imports-RemoveUnused)
-    imap <C-j>i <Plug>(JavaComplete-Imports-AddSmart)
-    imap <C-j>ii <Plug>(JavaComplete-Imports-Add)
-
-    nmap <leader>jM <Plug>(JavaComplete-Generate-AbstractMethods)
-
-    imap <C-j>jM <Plug>(JavaComplete-Generate-AbstractMethods)
-
-    nmap <leader>jA <Plug>(JavaComplete-Generate-Accessors)
-    nmap <leader>js <Plug>(JavaComplete-Generate-AccessorSetter)
-    nmap <leader>jg <Plug>(JavaComplete-Generate-AccessorGetter)
-    nmap <leader>ja <Plug>(JavaComplete-Generate-AccessorSetterGetter)
-    nmap <leader>jts <Plug>(JavaComplete-Generate-ToString)
-    nmap <leader>jeq <Plug>(JavaComplete-Generate-EqualsAndHashCode)
-    nmap <leader>jc <Plug>(JavaComplete-Generate-Constructor)
-    nmap <leader>jcc <Plug>(JavaComplete-Generate-DefaultConstructor)
-
-    imap <C-j>s <Plug>(JavaComplete-Generate-AccessorSetter)
-    imap <C-j>g <Plug>(JavaComplete-Generate-AccessorGetter)
-    imap <C-j>a <Plug>(JavaComplete-Generate-AccessorSetterGetter)
-
-    vmap <leader>js <Plug>(JavaComplete-Generate-AccessorSetter)
-    vmap <leader>jg <Plug>(JavaComplete-Generate-AccessorGetter)
-    vmap <leader>ja <Plug>(JavaComplete-Generate-AccessorSetterGetter)
-
-    nmap <silent> <buffer> <leader>jn <Plug>(JavaComplete-Generate-NewClass)
-    nmap <silent> <buffer> <leader>jN <Plug>(JavaComplete-Generate-ClassInFile)
+"    au FileType java let g:ctrlp_custom_ignore = {
+"                \ 'dir': [ 'apidocs', 'classes', 'invoker',
+"                \          'javadoc-bundle-options', 'lib',
+"                \          'maven-archiver', 'maven-status',
+"                \          'surefire-reports', 'apidocs',
+"                \        ],
+"                \ }
 augroup END
 "}}}
 
 " Vimscript file settings {{{
 augroup filetype_vim
     au!
-    au! FileType vim setlocal tabstop=4 softtabstop=4 shiftwidth=4 foldmethod=marker
+    au! FileType vim setlocal tabstop=4 softtabstop=4 shiftwidth=4
+        \ foldmethod=marker
 augroup END
 " }}}
 
@@ -161,11 +168,15 @@ augroup tpl_filetype_settings
 augroup END
 " }}}
 
-" omnicomplete color settings {{{
-augroup omnicomplete_color_settings
-    highlight Pmenu ctermbg=black ctermfg=white
-    highlight PmenuSel ctermbg=red ctermfg=white
+" html settings {{{
+augroup html_settings
+    au FileType html setlocal shiftwidth=4 tabstop=4 softtabstop=4
 augroup END
+" }}}
+
+" omnicomplete color settings {{{
+highlight Pmenu ctermbg=black ctermfg=white
+highlight PmenuSel ctermbg=red ctermfg=white
 " }}}
 
 " erlang settings {{{
@@ -181,17 +192,16 @@ augroup END
 " .rst filetype settings {{{
 augroup rst_settings
     au!
-    au FileType rst setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+    au FileType rst setlocal tabstop=2 shiftwidth=2 softtabstop=2
 augroup END
 " }}}
 
 " clojure settings {{{
-nnoremap <silent> <Leader>ce :%Eval<cr>
-nnoremap <silent> <Leader>ct :RunTests<cr>
+nnoremap <silent> <localleader>ce :%Eval<cr>
+nnoremap <silent> <localleader>ct :RunTests<cr>
 augroup clojure_settings
     au!
     au FileType clojure setlocal tabstop=2 shiftwidth=2 softtabstop=2
-    au FileType clojure setlocal expandtab
     au FileType clojure setlocal omnifunc=syntaxcomplete#Complete
 augroup END
 " }}}
@@ -205,20 +215,20 @@ let s:opam_share_dir = substitute(s:opam_share_dir, '[\r\n]*$', '', '')
 let s:opam_configuration = {}
 
 function! OpamConfOcpIndent()
-  let l:file = s:opam_share_dir . "/vim/syntax/ocp-indent.vim"
-  execute "source " . l:file
+    let l:file = s:opam_share_dir . "/vim/syntax/ocp-indent.vim"
+    execute "source " . l:file
 endfunction
 let s:opam_configuration['ocp-indent'] = function('OpamConfOcpIndent')
 
 function! OpamConfOcpIndex()
-  let l:file = s:opam_share_dir . "/vim/syntax/ocpindex.vim"
-  execute "source " . l:file
+    let l:file = s:opam_share_dir . "/vim/syntax/ocpindex.vim"
+    execute "source " . l:file
 endfunction
 let s:opam_configuration['ocp-index'] = function('OpamConfOcpIndex')
 
 function! OpamConfMerlin()
-  let l:dir = s:opam_share_dir . "/merlin/vim"
-  execute "set rtp+=" . l:dir
+    let l:dir = s:opam_share_dir . "/merlin/vim"
+    execute "set rtp+=" . l:dir
 endfunction
 let s:opam_configuration['merlin'] = function('OpamConfMerlin')
 
@@ -226,7 +236,7 @@ let s:opam_packages = ["ocp-indent", "ocp-index", "merlin"]
 let s:opam_check_cmdline = ["opam list --installed --short --safe --color=never"] + s:opam_packages
 let s:opam_available_tools = split(system(join(s:opam_check_cmdline, ' ')))
 for tool in s:opam_available_tools
-  call s:opam_configuration[tool]()
+    call s:opam_configuration[tool]()
 endfor
 " ## end of OPAM user-setup addition for vim / base ## keep this line
 
@@ -286,14 +296,67 @@ let g:syntastic_rust_rustc_exe = 'cargo check'
 let g:syntastic_rust_rustc_fname = ''
 let g:syntastic_rust_rustc_args = '--'
 let g:syntastic_rust_checkers = ['rustc']
-let g:ctag_exec = "rusty-tags"
-let g:ctag_options = "vi"
 
 augroup rust_settings
     au!
     au FileType rust setlocal tags=./rusty-tags.vi;/
     au FileType rust let Tlist_Ctags_Cmd="/home/mikey/.cargo/bin/rusty-tags"
+    au FileType rust let g:ctag_exec = "rusty-tags"
+    au FileType rust let g:ctag_options = "vi"
+    au FileType rust nnoremap <buffer> <localleader>c I//<esc>
 augroup END
+" }}}
+
+" ada settings {{{
+augroup ada_settings
+    au!
+    au FileType ada setlocal shiftwidth=2 softtabstop=2 tabstop=2
+augroup END
+" }}}
+
+" prolog settings {{{
+augroup prolog_settings
+    au FileType prolog setlocal shiftwidth=4 softtabstop=4 tabstop=4
+augroup END
+" }}}
+
+" XML settings {{{
+augroup xml_settings
+    au!
+    au FileType xml setlocal shiftwidth=2 softtabstop=2 tabstop=2
+augroup END
+" }}}
+
+" C settings {{{
+augroup c_settings
+    au!
+    au FileType c setlocal noexpandtab shiftwidth=8 tabstop=8 softtabstop=8
+augroup END
+" }}}
+
+" markdown settings {{{
+augroup markdown_settings
+    au!
+    au FileType markdown setlocal shiftwidth=2 softtabstop=2 tabstop=2
+    au FileType markdown onoremap <buffer> ih
+                \ :<c-u>execute "normal! ?^\\(==\\+\\\\|--\\+\\)$\r:nohlsearch\rkvg_"<cr>
+    au FileType markdown onoremap <buffer> ah
+                \ :<c-u>execute "normal! ?^\\(==\\+\\\\|--\\+\\)$\r:nohlsearch\rg_vk0"<cr>
+augroup END
+" }}}
+
+" overlength settings {{{
+highlight OverLength ctermbg=red ctermfg=white
+
+fun! UpdateMatch()
+    if &ft =~ '^java$'
+        match OverLength /\v(%100v.+|( |\t)+$)/
+    else
+        match OverLength /\v(%80v.+|( |\t)+$)/
+    endif
+endfun
+
+au BufEnter,BufWinEnter * call UpdateMatch()
 " }}}
 
 highlight Folded ctermbg=240 ctermfg=white
@@ -304,9 +367,9 @@ let g:syntastic_auto_loc_list=1
 let g:syntastic_c_check_header = 1
 let g:syntastic_c_auto_refresh_includes = 1
 let g:syntastic_c_include_dirs = [ '/usr/lib64/swipl-7.1.29/include',
-                                 \ '/usr/include/SDL2' ]
+            \ '/usr/include/SDL2' ]
 let g:syntastic_cpp_include_dirs = [ '/usr/lib64/swipl-7.1.29/include',
-                                   \ '/usr/include/SDL2' ]
+            \ '/usr/include/SDL2' ]
 " let g:syntastic_erlc_include_path = [ 'src' ]
 let g:slimv_swank_cmd = '! screen -d -m -t REPL-CCL /usr/bin/ccl --load ~/.vim/bundle/slimv/slime/start-swank.lisp'
 
@@ -322,8 +385,9 @@ function! FindCabalSandboxRootPackageConf()
 endfunction
 
 let g:hdevtools_options = '-g-isrc -g-hide-package -gmonads-tf -i.
-\-g-package-conf='.FindCabalSandboxRootPackageConf()
+            \-g-package-conf='.FindCabalSandboxRootPackageConf()
 
+" gitgutter {{{
 highlight SignColumn ctermbg=none
 highlight GitGutterAdd ctermfg=green
 highlight GitGutterChange ctermfg=yellow
@@ -334,6 +398,8 @@ nmap ]h <Plug>GitGutterNextHunk
 nmap [h <Plug>GitGutterPrevHunk
 
 let g:gitgutter_eager = 1
+" }}}
+
 let tlist_prolog_settings='prolog;p:predicate'
 
 nnoremap <silent> <F7> :execute '!' . g:ctag_exec . ' ' . g:ctag_options<CR>
@@ -346,6 +412,7 @@ function! HighlightSource()
     return synIDattr(synID(line("."), col("."), 1), "name")
 endfunction
 
+" statusline {{{
 set statusline=
 set statusline+=%1*\ %n\ %*				"buffer number
 set statusline+=%5*%{&ff}%*				"file format
@@ -366,12 +433,16 @@ hi User2 ctermfg=red ctermbg=235
 hi User3 ctermfg=169 ctermbg=235
 hi User4 ctermfg=lightgreen  ctermbg=235
 hi User5 ctermfg=yellow ctermbg=235
+" }}}
 
-nnoremap <leader>ev :split $MYVIMRC<cr>
+hi LineNr ctermfg=130 ctermbg=0
+
+" vim mappings {{{
+nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
 inoremap jk <esc>
-"inoremap <esc> <nop>
+inoremap <esc> <nop>
 inoremap <left> <nop>
 inoremap <right> <nop>
 inoremap <up> <nop>
@@ -388,9 +459,46 @@ nnoremap <silent> []l :ll<cr>
 nnoremap <silent> ]l :lnext<cr>
 nnoremap <silent> [l :lprevious<cr>
 
+nnoremap <silent> <leader>co :copen<cr>
+nnoremap <silent> <leader>cc :ccl<cr>
+nnoremap <silent> []c :cl<cr>
+nnoremap <silent> ]c :cnext<cr>
+nnoremap <silent> [c :cprevious<cr>
+" }}}
+
 nnoremap <silent> <leader>nt :NERDTreeToggle<cr>
 nnoremap <silent> <leader>gt :GundoToggle<cr>
 
-inoremap auth@ author: michael blockley <mikey@spotify.com>
+iabbrev auth@ author: michael blockley <mikey@spotify.com>
 
 set printexpr=
+
+
+" LVSTHM
+
+autocmd VimEnter * echo ">^.^<"
+
+nnoremap <localleader>- ddp
+nnoremap <localleader>_ ddkP
+
+inoremap <c-u> <esc>vawUei
+nnoremap <c-u> vawUe
+
+iabbrev @@ mikey@spotify.net
+
+nnoremap <leader>" viw<esc>a"<esc>bi"<esc>lel
+nnoremap <leader>' viw<esc>a'<esc>bi'<esc>lel
+vnoremap <leader>" <esc>`>a"<esc>`<i"<esc>`<lv`>l
+vnoremap <leader>' <esc>`>a'<esc>`<i"<esc>`<lv`>l
+
+onoremap p i(
+
+onoremap in( :<c-u>normal! f(vi(<cr>
+onoremap il( :<c-u>normal! F)vi(<cr>
+onoremap an( :<c-u>normal! f(va(<cr>
+onoremap al( :<c-u>normal! F)va(<cr>
+
+onoremap in{ :<c-u>normal! f{vi{<cr>
+onoremap il{ :<c-u>normal! F}vi{<cr>
+onoremap an{ :<c-u>normal! f{va{<cr>
+onoremap al{ :<c-u>normal! F}va{<cr>

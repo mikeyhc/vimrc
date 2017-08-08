@@ -52,3 +52,6 @@
 [submodule "vim/bundle/vim-terraform"]
 	path = vim/bundle/vim-terraform
 	url = https://github.com/hashivim/vim-terraform
+[submodule "vim/bundle/vim-maven-plugin"]
+	path = vim/bundle/vim-maven-plugin
+	url = https://github.com/mikelue/vim-maven-plugin
