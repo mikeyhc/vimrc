@@ -1,9 +1,11 @@
+" vim settings {{{
 set autoindent
 set history=50
 set hidden
 set wildmenu
 set showcmd
 set hlsearch
+set incsearch
 set ignorecase
 set smartcase
 set backspace=indent,eol,start
@@ -11,15 +13,17 @@ set nostartofline
 set ruler
 set laststatus=2
 set confirm
+set nocompatible
 set visualbell
 set t_vb=
 set t_Co=256
 set cmdheight=1
 set number relativenumber
 set tags=.tags
-
-filetype plugin indent on
 set expandtab
+set printexpr=
+filetype plugin indent on
+" }}}
 
 " set early so can be replaced in ft blocks below
 let g:ctag_exec = "ctags"
@@ -304,6 +308,7 @@ augroup rust_settings
     au FileType rust let g:ctag_exec = "rusty-tags"
     au FileType rust let g:ctag_options = "vi"
     au FileType rust nnoremap <buffer> <localleader>c I//<esc>
+    au FileType rust let b:grep_srcdir = "src/**.rs"
 augroup END
 " }}}
 
@@ -334,6 +339,12 @@ augroup c_settings
 augroup END
 " }}}
 
+" perl settings {{{
+augroup perl_settings
+    au!
+    au FileType perl set shiftwidth=4 softtabstop=4 tabstop=4
+augroup END
+
 " markdown settings {{{
 augroup markdown_settings
     au!
@@ -359,23 +370,10 @@ endfun
 au BufEnter,BufWinEnter * call UpdateMatch()
 " }}}
 
-highlight Folded ctermbg=240 ctermfg=white
-
 noremap <silent> <Leader>e :Errors<cr>
 noremap <Leader>s :SyntasticToggleMode<cr>
-let g:syntastic_auto_loc_list=1
-let g:syntastic_c_check_header = 1
-let g:syntastic_c_auto_refresh_includes = 1
-let g:syntastic_c_include_dirs = [ '/usr/lib64/swipl-7.1.29/include',
-            \ '/usr/include/SDL2' ]
-let g:syntastic_cpp_include_dirs = [ '/usr/lib64/swipl-7.1.29/include',
-            \ '/usr/include/SDL2' ]
-" let g:syntastic_erlc_include_path = [ 'src' ]
-let g:slimv_swank_cmd = '! screen -d -m -t REPL-CCL /usr/bin/ccl --load ~/.vim/bundle/slimv/slime/start-swank.lisp'
 
-noremap <silent> tu :call GHC_BrowseAll()<cr>
-noremap <silent> tw :call GHC_ShowType(1)<cr>
-
+" plugin settings {{{
 function! FindCabalSandboxRoot()
     return finddir('.cabal-sandbox', './;')
 endfunction
@@ -386,6 +384,17 @@ endfunction
 
 let g:hdevtools_options = '-g-isrc -g-hide-package -gmonads-tf -i.
             \-g-package-conf='.FindCabalSandboxRootPackageConf()
+let g:syntastic_auto_loc_list=1
+let g:syntastic_c_check_header = 1
+let g:syntastic_c_auto_refresh_includes = 1
+let g:syntastic_c_include_dirs = [ '/usr/lib64/swipl-7.1.29/include',
+            \ '/usr/include/SDL2' ]
+let g:syntastic_cpp_include_dirs = [ '/usr/lib64/swipl-7.1.29/include',
+            \ '/usr/include/SDL2' ]
+" let g:syntastic_erlc_include_path = [ 'src' ]
+let g:slimv_swank_cmd = '! screen -d -m -t REPL-CCL /usr/bin/ccl --load ~/.vim/bundle/slimv/slime/start-swank.lisp'
+let tlist_prolog_settings='prolog;p:predicate'
+" }}}
 
 " gitgutter {{{
 highlight SignColumn ctermbg=none
@@ -400,13 +409,17 @@ nmap [h <Plug>GitGutterPrevHunk
 let g:gitgutter_eager = 1
 " }}}
 
-let tlist_prolog_settings='prolog;p:predicate'
-
+" plugin keymappings {{{
 nnoremap <silent> <F7> :execute '!' . g:ctag_exec . ' ' . g:ctag_options<CR>
 nnoremap <silent> <F8> :TlistToggle<CR>
 nnoremap <silent> <leader>. :CtrlPTag<CR>
 nnoremap <silent> <leader>n :lnext<CR>
 nnoremap <silent> <leader>p :lprev<CR>
+nnoremap <silent> <leader>nt :NERDTreeToggle<cr>
+nnoremap <silent> <leader>gt :GundoToggle<cr>
+noremap <silent> tu :call GHC_BrowseAll()<cr>
+noremap <silent> tw :call GHC_ShowType(1)<cr>
+" }}}
 
 function! HighlightSource()
     return synIDattr(synID(line("."), col("."), 1), "name")
@@ -427,30 +440,44 @@ set statusline+=%5*\ %l%*			    "current line
 set statusline+=%2*/%L\ %p%%\ %*	    "total lines
 set statusline+=%1*\ %5*%v\ %*			"virtual column number
 set statusline+=%2*0x%04B\ %*			"cursor character
+" }}}
 
+" colours {{{
 hi User1 ctermfg=172 ctermbg=235
 hi User2 ctermfg=red ctermbg=235
 hi User3 ctermfg=169 ctermbg=235
 hi User4 ctermfg=lightgreen  ctermbg=235
 hi User5 ctermfg=yellow ctermbg=235
-" }}}
-
 hi LineNr ctermfg=130 ctermbg=0
+hi Folded ctermbg=240 ctermfg=white
+" }}}
 
 " vim mappings {{{
 nnoremap <leader>ev :vsplit $MYVIMRC<cr>
 nnoremap <leader>sv :source $MYVIMRC<cr>
 
 inoremap jk <esc>
-inoremap <esc> <nop>
-inoremap <left> <nop>
-inoremap <right> <nop>
-inoremap <up> <nop>
-inoremap <down> <nop>
-nnoremap <left> <nop>
-nnoremap <right> <nop>
-nnoremap <up> <nop>
-nnoremap <down> <nop>
+" arrow mappings {{{
+function! ArrowMappings()
+    if bufname('%') !=? 'REPL' && !exists("b:arrows_mapped")
+        let b:arrows_mapped = 1
+        inoremap <buffer> <esc> <nop>
+        inoremap <buffer> <left> <nop>
+        inoremap <buffer> <right> <nop>
+        inoremap <buffer> <up> <nop>
+        inoremap <buffer> <down> <nop>
+        nnoremap <buffer> <left> <nop>
+        nnoremap <buffer> <right> <nop>
+        nnoremap <buffer> <up> <nop>
+        nnoremap <buffer> <down> <nop>
+    endif
+endfunction
+
+augroup mapping_update
+    au!
+    au BufEnter,BufWinEnter * call ArrowMappings()
+augroup END
+" }}}
 
 nnoremap <silent> <leader>lo :lop<cr>
 nnoremap <silent> <leader>lc :lcl<cr>
@@ -466,17 +493,17 @@ nnoremap <silent> ]c :cnext<cr>
 nnoremap <silent> [c :cprevious<cr>
 " }}}
 
-nnoremap <silent> <leader>nt :NERDTreeToggle<cr>
-nnoremap <silent> <leader>gt :GundoToggle<cr>
-
 iabbrev auth@ author: michael blockley <mikey@spotify.com>
 
-set printexpr=
-
+" workaround for https://github.com/vim/vim/issues/1start671
+if has("unix")
+    let s:uname = system("echo -n \"$(uname)\"")
+    if !v:shell_error && s:uname == "Linux"
+        set t_BE=
+    endif
+endif
 
 " LVSTHM
-
-autocmd VimEnter * echo ">^.^<"
 
 nnoremap <localleader>- ddp
 nnoremap <localleader>_ ddkP
@@ -502,3 +529,37 @@ onoremap in{ :<c-u>normal! f{vi{<cr>
 onoremap il{ :<c-u>normal! F}vi{<cr>
 onoremap an{ :<c-u>normal! f{va{<cr>
 onoremap al{ :<c-u>normal! F}va{<cr>
+
+noremap <silent> <leader>sl :execute "rightbelow split " . bufname("#")<cr>
+
+nnoremap / /\v
+nnoremap <leader>nh :nohlsearch<cr>
+
+nnoremap <leader>N :setlocal number!<cr>
+nnoremap <leader>f :call FoldColumnToggle()<cr>
+
+function! FoldColumnToggle()
+    if &foldcolumn
+        setlocal foldcolumn=0
+    else
+        setlocal foldcolumn=4
+    endif
+endfunction
+
+noremap <leader>q :call QuickFixToggle()<cr>
+
+let g:quickfix_is_open = 0
+function! QuickFixToggle()
+    if g:quickfix_is_open
+        cclose
+        let g:quickfix_is_open = 0
+        execute g:quickfix_return_to_window . "wincmd w"
+    else
+        let g:quickfix_return_to_window = winnr()
+        copen
+        let g:quickfix_is_open = 1
+    endif
+endfunction
+
+autocmd VimEnter * redraw
+autocmd VimEnter * echom ">^.^<"
