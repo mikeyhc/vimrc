@@ -27,17 +27,19 @@ filetype plugin indent on
 
 " set early so can be replaced in ft blocks below
 let g:ctag_exec = "ctags"
-let g:ctag_options = "--verbose=y -R -f .tags"
+let g:ctag_options = "--verbose=y -R -n -f .tags"
 
 execute pathogen#infect()
 
 " common syntax rules {{{
 syntax on
-colorscheme slate
+" colorscheme slate
+colorscheme koehler
 highlight VertSplit ctermfg=236
 highlight StatusLine ctermbg=235 ctermfg=white cterm=bold
 highlight StatusLineNC ctermbg=235 ctermfg=grey cterm=bold
 highlight WildMenu ctermbg=red ctermfg=white
+highlight Search ctermfg=black ctermbg=cyan
 set fillchars+=vert:\ 
 "}}}
 
@@ -174,7 +176,15 @@ augroup END
 
 " html settings {{{
 augroup html_settings
+    au!
     au FileType html setlocal shiftwidth=4 tabstop=4 softtabstop=4
+augroup END
+" }}}
+
+" svg settings {{{
+augroup svg_settings
+    au!
+    au FileType svg setlocal shiftwidth=4 tabstop=4 softtabstop=4
 augroup END
 " }}}
 
@@ -218,12 +228,6 @@ let s:opam_share_dir = substitute(s:opam_share_dir, '[\r\n]*$', '', '')
 
 let s:opam_configuration = {}
 
-function! OpamConfOcpIndent()
-    let l:file = s:opam_share_dir . "/vim/syntax/ocp-indent.vim"
-    execute "source " . l:file
-endfunction
-let s:opam_configuration['ocp-indent'] = function('OpamConfOcpIndent')
-
 function! OpamConfOcpIndex()
     let l:file = s:opam_share_dir . "/vim/syntax/ocpindex.vim"
     execute "source " . l:file
@@ -236,12 +240,12 @@ function! OpamConfMerlin()
 endfunction
 let s:opam_configuration['merlin'] = function('OpamConfMerlin')
 
-let s:opam_packages = ["ocp-indent", "ocp-index", "merlin"]
+let s:opam_packages = ["ocp-index", "merlin"]
 let s:opam_check_cmdline = ["opam list --installed --short --safe --color=never"] + s:opam_packages
-let s:opam_available_tools = split(system(join(s:opam_check_cmdline, ' ')))
-for tool in s:opam_available_tools
-    call s:opam_configuration[tool]()
-endfor
+" let s:opam_available_tools = split(system(join(s:opam_check_cmdline, ' ')))
+" for tool in s:opam_available_tools
+"     call s:opam_configuration[tool]()
+" endfor
 " ## end of OPAM user-setup addition for vim / base ## keep this line
 
 let g:syntastic_ocaml_checkers = ['merlin']
@@ -269,14 +273,14 @@ augroup END
 " python settings {{{
 augroup python_settings
     au!
-    au Filetype python setlocal shiftwidth=2 softtabstop=2 tabstop=2
+    au Filetype python setlocal shiftwidth=4 softtabstop=4 tabstop=4
 augroup END
 " }}}
 
 " yaml settings {{{
 augroup yaml_settings
     au!
-    au FileType yaml setlocal shiftwidth=2 softtabstop=2 tabstop=2
+    au FileType yaml setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
 augroup END
 " }}}
 
@@ -299,16 +303,28 @@ augroup END
 let g:syntastic_rust_rustc_exe = 'cargo check'
 let g:syntastic_rust_rustc_fname = ''
 let g:syntastic_rust_rustc_args = '--'
-let g:syntastic_rust_checkers = ['rustc']
+let g:syntastic_rust_checkers = ['clippy']
+let g:racer_cmd = '/home/mikey/.cargo/bin/racer'
 
 augroup rust_settings
     au!
-    au FileType rust setlocal tags=./rusty-tags.vi;/
-    au FileType rust let Tlist_Ctags_Cmd="/home/mikey/.cargo/bin/rusty-tags"
-    au FileType rust let g:ctag_exec = "rusty-tags"
-    au FileType rust let g:ctag_options = "vi"
     au FileType rust nnoremap <buffer> <localleader>c I//<esc>
     au FileType rust let b:grep_srcdir = "src/**.rs"
+    au FileType rust nmap gd <Plug>(rust-def)
+    au FileType rust nmap gs <Plug>(rust-def-split)
+    au FileType rust nmap gx <Plug>(rust-def-vertical)
+    au FileType rust nmap <leader>gd <Plug>(rust-doc)
+augroup END
+" }}}
+
+" go settings {{{
+let g:go_fmt_command = "goimports"
+let g:go_bin_path = "/home/mikey/go/bin/"
+let g:go_doc_command = ["go", "doc"]
+augroup go_settings
+    au!
+    au FileType go setlocal tabstop=4 softtabstop=4 shiftwidth=4
+    au FileType go nnoremap gr :GoRun %<cr>
 augroup END
 " }}}
 
@@ -321,6 +337,7 @@ augroup END
 
 " prolog settings {{{
 augroup prolog_settings
+    au BufRead,BufNewFile *.pl setlocal ft=prolog
     au FileType prolog setlocal shiftwidth=4 softtabstop=4 tabstop=4
 augroup END
 " }}}
@@ -336,6 +353,7 @@ augroup END
 augroup c_settings
     au!
     au FileType c setlocal noexpandtab shiftwidth=8 tabstop=8 softtabstop=8
+    au FileType c setlocal foldmethod=syntax
 augroup END
 " }}}
 
@@ -344,6 +362,7 @@ augroup perl_settings
     au!
     au FileType perl set shiftwidth=4 softtabstop=4 tabstop=4
 augroup END
+" }}}
 
 " markdown settings {{{
 augroup markdown_settings
@@ -356,11 +375,21 @@ augroup markdown_settings
 augroup END
 " }}}
 
+" picolisp settings {{{
+augroup picolisp
+    au!
+    au FileType picolisp setlocal shiftwidth=3 softtabstop=3 tabstop=3
+augroup END
+" }}}
+
 " overlength settings {{{
 highlight OverLength ctermbg=red ctermfg=white
 
 fun! UpdateMatch()
     if &ft =~ '^java$'
+        match OverLength /\v(%100v.+|( |\t)+$)/
+    elseif expand('%:t:r') =~ '^REPL$'
+    elseif &ft =~ '^svg$'
         match OverLength /\v(%100v.+|( |\t)+$)/
     else
         match OverLength /\v(%80v.+|( |\t)+$)/
@@ -491,6 +520,16 @@ nnoremap <silent> <leader>cc :ccl<cr>
 nnoremap <silent> []c :cl<cr>
 nnoremap <silent> ]c :cnext<cr>
 nnoremap <silent> [c :cprevious<cr>
+
+nnoremap <silent> <leader>tp :set paste!<cr>
+" }}}
+
+" view settings {{{
+augroup view_settings
+    au!
+    au BufWinLeave *.* mkview
+    au BufWinEnter *.* silent loadview
+augroup END
 " }}}
 
 iabbrev auth@ author: michael blockley <mikey@spotify.com>
@@ -510,8 +549,6 @@ nnoremap <localleader>_ ddkP
 
 inoremap <c-u> <esc>vawUei
 nnoremap <c-u> vawUe
-
-iabbrev @@ mikey@spotify.net
 
 nnoremap <leader>" viw<esc>a"<esc>bi"<esc>lel
 nnoremap <leader>' viw<esc>a'<esc>bi'<esc>lel
@@ -537,6 +574,8 @@ nnoremap <leader>nh :nohlsearch<cr>
 
 nnoremap <leader>N :setlocal number!<cr>
 nnoremap <leader>f :call FoldColumnToggle()<cr>
+
+nnoremap <leader>cp :-1r !xclip -o -sel clip<CR>
 
 function! FoldColumnToggle()
     if &foldcolumn
