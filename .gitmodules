@@ -68,5 +68,8 @@
 	path = ocp-indent-vim
 	url = https://github.com/def-lkb/ocp-indent-vim
 [submodule "vim-puppet"]
-	path = vim-puppet
+	path = vim/bundle/vim-puppet
 	url = https://github.com/rodjek/vim-puppet
+[submodule "vim-classpath"]
+	path = vim-classpath
+	url = git://github.com/tpope/vim-classpath.git
