@@ -55,3 +55,18 @@
 [submodule "vim/bundle/vim-maven-plugin"]
 	path = vim/bundle/vim-maven-plugin
 	url = https://github.com/mikelue/vim-maven-plugin
+[submodule "vim/bundle/vim-potion"]
+	path = vim/bundle/vim-potion
+	url = git@github.com:mikeyhc/vim-potion
+[submodule "vim/bundle/vim-puppet"]
+	path = vim/bundle/vim-puppet
+	url = https://github.com/rodjek/vim-puppet
+[submodule "vim/bundle/elm-vim"]
+	path = vim/bundle/elm-vim
+	url = https://github.com/ElmCast/elm-vim
+[submodule "ocp-indent-vim"]
+	path = ocp-indent-vim
+	url = https://github.com/def-lkb/ocp-indent-vim
+[submodule "vim-puppet"]
+	path = vim-puppet
+	url = https://github.com/rodjek/vim-puppet

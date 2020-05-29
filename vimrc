@@ -22,6 +22,10 @@ set number relativenumber
 set tags=.tags
 set expandtab
 set printexpr=
+set nobackup
+set noundofile
+set mouse=
+set encoding=utf-8
 filetype plugin indent on
 " }}}
 
@@ -42,6 +46,11 @@ highlight WildMenu ctermbg=red ctermfg=white
 highlight Search ctermfg=black ctermbg=cyan
 set fillchars+=vert:\ 
 "}}}
+
+let g:ctrlp_custom_ignore = {
+    \ 'dir': '\(venv\|target\|_build\|logs\|ebin\)',
+    \ 'file': '.beam$'
+    \ }
 
 " .h filetype settings {{{
 augroup h_filetype
@@ -74,6 +83,14 @@ augroup tex_indent
     au!
     au FileType tex setlocal tabstop=2 shiftwidth=2 softtabstop=2
     au FileType plaintex setlocal tabstop=2 shiftwidth=2 softtabstop=2
+augroup END
+" }}}
+
+" Javascript settings {{{
+augroup js_filetypes
+    au!
+    au BufRead,BufNewFile *.tsx setlocal ft=typescript
+    au FileType javascript,typescript setlocal tabstop=2 shiftwidth=2 softtabstop=2
 augroup END
 " }}}
 
@@ -148,7 +165,7 @@ nnoremap <silent> <buffer> <localleader>jN
 
 augroup java_settings
     au!
-    au FileType java setlocal tabstop=2 shiftwidth=2 softtabstop=2
+    au FileType java setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
     au FileType java setlocal omnifunc=javacomplete#Complete
 "    au FileType java let g:ctrlp_custom_ignore = {
 "                \ 'dir': [ 'apidocs', 'classes', 'invoker',
@@ -178,6 +195,7 @@ augroup END
 augroup html_settings
     au!
     au FileType html setlocal shiftwidth=4 tabstop=4 softtabstop=4
+    au FileType css setlocal shiftwidth=4 tabstop=4 softtabstop=4
 augroup END
 " }}}
 
@@ -222,37 +240,17 @@ augroup END
 
 " ocaml settings {{{
 
-" ## added by OPAM user-setup for vim / base ## 8a3125e39f347f6b9a1b167d8e564281 ## you can edit, but keep this line
-let s:opam_share_dir = system("opam config var share")
-let s:opam_share_dir = substitute(s:opam_share_dir, '[\r\n]*$', '', '')
-
-let s:opam_configuration = {}
-
-function! OpamConfOcpIndex()
-    let l:file = s:opam_share_dir . "/vim/syntax/ocpindex.vim"
-    execute "source " . l:file
-endfunction
-let s:opam_configuration['ocp-index'] = function('OpamConfOcpIndex')
-
-function! OpamConfMerlin()
-    let l:dir = s:opam_share_dir . "/merlin/vim"
-    execute "set rtp+=" . l:dir
-endfunction
-let s:opam_configuration['merlin'] = function('OpamConfMerlin')
-
-let s:opam_packages = ["ocp-index", "merlin"]
-let s:opam_check_cmdline = ["opam list --installed --short --safe --color=never"] + s:opam_packages
-" let s:opam_available_tools = split(system(join(s:opam_check_cmdline, ' ')))
-" for tool in s:opam_available_tools
-"     call s:opam_configuration[tool]()
-" endfor
-" ## end of OPAM user-setup addition for vim / base ## keep this line
+let g:opamshare = substitute(system('opam config var share'),'\n$','','''')
+execute "set rtp+=" . g:opamshare . "/merlin/vim"
 
 let g:syntastic_ocaml_checkers = ['merlin']
 nnoremap <silent> <localleader>ml :MerlinLocate<cr>
 augroup ocaml_settings
     au!
     au FileType ocaml setlocal tabstop=2 shiftwidth=2 softtabstop=2
+    au FileType ocaml execute "set rtp+=" .
+        \ substitute(system('opam config var share'), '\n$', '', '''') .
+        \ "/ocp-indent/vim/indent/ocaml.vim"
 augroup END
 " }}}
 
@@ -350,10 +348,13 @@ augroup END
 " }}}
 
 " C settings {{{
+let g:syntastic_c_config_file=".syntastic_c_config"
 augroup c_settings
     au!
     au FileType c setlocal noexpandtab shiftwidth=8 tabstop=8 softtabstop=8
     au FileType c setlocal foldmethod=syntax
+    au FileType c setlocal cindent
+    au FileType c setlocal cinoptions=:0t0
 augroup END
 " }}}
 
@@ -372,6 +373,7 @@ augroup markdown_settings
                 \ :<c-u>execute "normal! ?^\\(==\\+\\\\|--\\+\\)$\r:nohlsearch\rkvg_"<cr>
     au FileType markdown onoremap <buffer> ah
                 \ :<c-u>execute "normal! ?^\\(==\\+\\\\|--\\+\\)$\r:nohlsearch\rg_vk0"<cr>
+    highlight link markdownItalic htmlBold
 augroup END
 " }}}
 
@@ -379,6 +381,20 @@ augroup END
 augroup picolisp
     au!
     au FileType picolisp setlocal shiftwidth=3 softtabstop=3 tabstop=3
+augroup END
+" }}}
+
+" elm settings {{{
+augroup elm
+    au!
+    au FileType elm setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
+augroup END
+" }}}
+
+" protobuf settings {{{
+augroup protobuf
+    au!
+    au FileType proto setlocal shiftwidth=2 softtabstop=2 tabstop=2 expandtab
 augroup END
 " }}}
 
@@ -392,7 +408,7 @@ fun! UpdateMatch()
     elseif &ft =~ '^svg$'
         match OverLength /\v(%100v.+|( |\t)+$)/
     else
-        match OverLength /\v(%80v.+|( |\t)+$)/
+        match OverLength /\v(%81v.+|( |\t)+$)/
     endif
 endfun
 
@@ -534,7 +550,7 @@ augroup END
 
 iabbrev auth@ author: michael blockley <mikey@spotify.com>
 
-" workaround for https://github.com/vim/vim/issues/1start671
+" workaround for https://github.com/vim/vim/issues/1671
 if has("unix")
     let s:uname = system("echo -n \"$(uname)\"")
     if !v:shell_error && s:uname == "Linux"
@@ -572,7 +588,7 @@ noremap <silent> <leader>sl :execute "rightbelow split " . bufname("#")<cr>
 nnoremap / /\v
 nnoremap <leader>nh :nohlsearch<cr>
 
-nnoremap <leader>N :setlocal number!<cr>
+nnoremap <leader>N :setlocal number! relativenumber!<cr>
 nnoremap <leader>f :call FoldColumnToggle()<cr>
 
 nnoremap <leader>cp :-1r !xclip -o -sel clip<CR>
