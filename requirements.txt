@@ -1,0 +1,11 @@
+pathogen
+ctrlp
+gundo
+nerdtree
+rust.vim
+prolog.vim
+syntastic
+vim-fugitive
+vim-gitgutter
+vim-dispatch
+vim-taglist
