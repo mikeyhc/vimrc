@@ -39,7 +39,7 @@ execute pathogen#infect()
 syntax on
 " colorscheme slate
 colorscheme koehler
-highlight VertSplit ctermfg=236
+highlight VertSplit ctermfg=235
 highlight StatusLine ctermbg=235 ctermfg=white cterm=bold
 highlight StatusLineNC ctermbg=235 ctermfg=grey cterm=bold
 highlight WildMenu ctermbg=red ctermfg=white
@@ -48,7 +48,7 @@ set fillchars+=vert:\
 "}}}
 
 let g:ctrlp_custom_ignore = {
-    \ 'dir': '\(venv\|target\|_build\|logs\|ebin\)',
+    \ 'dir': '\(venv\|target\|_build\|logs\|ebin\|node_modules\)',
     \ 'file': '.beam$'
     \ }
 
@@ -398,6 +398,22 @@ augroup protobuf
 augroup END
 " }}}
 
+" terraform settings {{{
+augroup terraform
+    au!
+    au FileType terraform setlocal shiftwidth=2 softtabstop=2 tabstop=2
+    au FileType terraform setlocal expandtab
+augroup END
+" }}}
+
+" vue settings {{{
+augroup vue
+    au!
+    au FileType vue setlocal shiftwidth=2 softtabstop=2 tabstop=2
+    au FileType vue setlocal expandtab
+augroup END
+" }}}
+
 " overlength settings {{{
 highlight OverLength ctermbg=red ctermfg=white
 
@@ -439,6 +455,8 @@ let g:syntastic_cpp_include_dirs = [ '/usr/lib64/swipl-7.1.29/include',
 " let g:syntastic_erlc_include_path = [ 'src' ]
 let g:slimv_swank_cmd = '! screen -d -m -t REPL-CCL /usr/bin/ccl --load ~/.vim/bundle/slimv/slime/start-swank.lisp'
 let tlist_prolog_settings='prolog;p:predicate'
+
+let g:gundo_prefer_python3 = 1
 " }}}
 
 " gitgutter {{{
