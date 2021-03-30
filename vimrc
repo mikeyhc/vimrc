@@ -240,8 +240,8 @@ augroup END
 
 " ocaml settings {{{
 
-let g:opamshare = substitute(system('opam config var share'),'\n$','','''')
-execute "set rtp+=" . g:opamshare . "/merlin/vim"
+" let g:opamshare = substitute(system('opam config var share'),'\n$','','''')
+" execute "set rtp+=" . g:opamshare . "/merlin/vim"
 
 let g:syntastic_ocaml_checkers = ['merlin']
 nnoremap <silent> <localleader>ml :MerlinLocate<cr>
@@ -269,6 +269,7 @@ augroup END
 " }}}
 
 " python settings {{{
+let g:syntastic_python_flake8_post_args='--ignore=E203,W501,W503'
 augroup python_settings
     au!
     au Filetype python setlocal shiftwidth=4 softtabstop=4 tabstop=4
