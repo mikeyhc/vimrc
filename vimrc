@@ -26,6 +26,7 @@ set nobackup
 set noundofile
 set mouse=
 set encoding=utf-8
+filetype off
 filetype plugin indent on
 " }}}
 
@@ -34,23 +35,25 @@ let g:ctag_exec = "ctags"
 let g:ctag_options = "--verbose=y -R -n -f .tags"
 
 execute pathogen#infect()
+execute pathogen#helptags()
 
 " common syntax rules {{{
 syntax on
-" colorscheme slate
-colorscheme koehler
+colorscheme murphy
 highlight VertSplit ctermfg=235
-highlight StatusLine ctermbg=235 ctermfg=white cterm=bold
-highlight StatusLineNC ctermbg=235 ctermfg=grey cterm=bold
-highlight WildMenu ctermbg=red ctermfg=white
-highlight Search ctermfg=black ctermbg=cyan
+" highlight StatusLine ctermbg=235 ctermfg=white cterm=bold
+" highlight StatusLineNC ctermbg=235 ctermfg=grey cterm=bold
+" highlight WildMenu ctermbg=red ctermfg=white
+" highlight Search ctermfg=black ctermbg=cyan
+" highlight Comment ctermfg=lightblue
 set fillchars+=vert:\ 
 "}}}
 
 let g:ctrlp_custom_ignore = {
-    \ 'dir': '\(venv\|target\|_build\|logs\|ebin\|node_modules\)',
+    \ 'dir': '\(venv\|target\|_build\|logs\|ebin\|node_modules\|cjs\)',
     \ 'file': '.beam$'
     \ }
+let g:ctrlp_open_new_file = 'r'
 
 " .h filetype settings {{{
 augroup h_filetype
@@ -62,12 +65,18 @@ augroup END
 " haskell settings {{{
 augroup hs_filetype
     au!
-    au BufRead,BufNewFile *.hsc setlocal ft=haskell
-    au BufRead,BufNewFile *.lhsc setlocal ft=lhaskell
+    au bufread,bufnewfile *.hsc setlocal ft=haskell
+    au bufread,bufnewfile *.lhsc setlocal ft=lhaskell
     au BufRead,BufNewFile *.cabal setlocal ft=cabal
+
+    au bufread,bufnewfile *.hsc compiler ghc
+    au bufread,bufnewfile *.lhsc compiler ghc
 
     au FileType haskell,lhaskell setlocal tabstop=4 shiftwidth=4 softtabstop=4
     au FileType cabal setlocal tabstop=2 shiftwidth=2 softtabstop=2
+
+    let g:haddock_browser="/usr/bin/firefox"
+    nnoremap <silent> <leader>gi :vert rightb term++close ghci<cr>
 augroup END
 " }}}
 
@@ -90,7 +99,7 @@ augroup END
 augroup js_filetypes
     au!
     au BufRead,BufNewFile *.tsx setlocal ft=typescript
-    au FileType javascript,typescript setlocal tabstop=2 shiftwidth=2 softtabstop=2
+    au FileType javascript,javascriptreact,typescript setlocal tabstop=2 shiftwidth=2 softtabstop=2
 augroup END
 " }}}
 
@@ -207,17 +216,18 @@ augroup END
 " }}}
 
 " omnicomplete color settings {{{
-highlight Pmenu ctermbg=black ctermfg=white
-highlight PmenuSel ctermbg=red ctermfg=white
+" highlight Pmenu ctermbg=black ctermfg=white
+" highlight PmenuSel ctermbg=red ctermfg=white
 " }}}
 
 " erlang settings {{{
 augroup other_erlang_settings
     au!
-    au! BufRead,BufNewfile *.app setlocal ft=erlang
-    au! BufRead,BufNewfile Emakefile setlocal ft=erlang
-    au! BufRead,BufNewfile rebar.config setlocal ft=erlang
-    au! FileType erlang setlocal tabstop=4 softtabstop=4 shiftwidth=4
+    au BufRead,BufNewfile *.app setlocal ft=erlang
+    au BufRead,BufNewfile Emakefile setlocal ft=erlang
+    au BufRead,BufNewfile rebar.config setlocal ft=erlang
+    au FileType erlang setlocal tabstop=4 softtabstop=4 shiftwidth=4
+    au FileType erlang setlocal foldmethod=marker
 augroup END
 " }}}
 
@@ -240,17 +250,19 @@ augroup END
 
 " ocaml settings {{{
 
-" let g:opamshare = substitute(system('opam config var share'),'\n$','','''')
-" execute "set rtp+=" . g:opamshare . "/merlin/vim"
+" ## added by OPAM user-setup for vim / base ## 93ee63e278bdfc07d1139a748ed3fff2 ## you can edit, but keep this line
+" let s:opam_share_dir = system("opam config var share")
+" let s:opam_share_dir = substitute(s:opam_share_dir, '[\r\n]*$', '', '')
+" execute "set rtp^=" . s:opam_share_dir . "/ocp-indent/vim"
+" execute "set rtp+=" . s:opam_share_dir . "/ocp-index/vim"
+" execute "set rtp+=" . s:opam_share_dir . "/merlin/vim"
+" source "/home/mikey/.opam/default/share/ocp-indent/vim/indent/ocaml.vim"
 
 let g:syntastic_ocaml_checkers = ['merlin']
 nnoremap <silent> <localleader>ml :MerlinLocate<cr>
 augroup ocaml_settings
     au!
     au FileType ocaml setlocal tabstop=2 shiftwidth=2 softtabstop=2
-    au FileType ocaml execute "set rtp+=" .
-        \ substitute(system('opam config var share'), '\n$', '', '''') .
-        \ "/ocp-indent/vim/indent/ocaml.vim"
 augroup END
 " }}}
 
@@ -446,14 +458,17 @@ endfunction
 
 let g:hdevtools_options = '-g-isrc -g-hide-package -gmonads-tf -i.
             \-g-package-conf='.FindCabalSandboxRootPackageConf()
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_check_on_wq = 0
 let g:syntastic_auto_loc_list=1
 let g:syntastic_c_check_header = 1
 let g:syntastic_c_auto_refresh_includes = 1
+
 let g:syntastic_c_include_dirs = [ '/usr/lib64/swipl-7.1.29/include',
             \ '/usr/include/SDL2' ]
 let g:syntastic_cpp_include_dirs = [ '/usr/lib64/swipl-7.1.29/include',
             \ '/usr/include/SDL2' ]
-" let g:syntastic_erlc_include_path = [ 'src' ]
 let g:slimv_swank_cmd = '! screen -d -m -t REPL-CCL /usr/bin/ccl --load ~/.vim/bundle/slimv/slime/start-swank.lisp'
 let tlist_prolog_settings='prolog;p:predicate'
 
@@ -467,8 +482,8 @@ highlight GitGutterChange ctermfg=yellow
 highlight GitGutterDelete ctermfg=red
 highlight GitGutterChangeDelete ctermfg=lightred
 
-nmap ]h <Plug>GitGutterNextHunk
-nmap [h <Plug>GitGutterPrevHunk
+nmap ]h <Plug>(GitGutterNextHunk)
+nmap [h <Plug>(GitGutterPrevHunk)
 
 let g:gitgutter_eager = 1
 " }}}
@@ -512,8 +527,8 @@ hi User2 ctermfg=red ctermbg=235
 hi User3 ctermfg=169 ctermbg=235
 hi User4 ctermfg=lightgreen  ctermbg=235
 hi User5 ctermfg=yellow ctermbg=235
-hi LineNr ctermfg=130 ctermbg=0
-hi Folded ctermbg=240 ctermfg=white
+" hi LineNr ctermfg=130 ctermbg=0
+" hi Folded ctermbg=240 ctermfg=white
 " }}}
 
 " vim mappings {{{
@@ -557,6 +572,10 @@ nnoremap <silent> ]c :cnext<cr>
 nnoremap <silent> [c :cprevious<cr>
 
 nnoremap <silent> <leader>tp :set paste!<cr>
+
+nnoremap <silent> <leader>tt :vert rightb term<cr>
+nnoremap <silent> <leader>p :tabp<cr>
+nnoremap <silent> <leader>o :tabn<cr>
 " }}}
 
 " view settings {{{

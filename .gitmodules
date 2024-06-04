@@ -73,3 +73,12 @@
 [submodule "vim-classpath"]
 	path = vim-classpath
 	url = git://github.com/tpope/vim-classpath.git
+[submodule "vim/bundle/vim-javascript"]
+	path = vim/bundle/vim-javascript
+	url = https://github.com/pangloss/vim-javascript
+[submodule "vim/bundle/typescript-vim"]
+	path = vim/bundle/typescript-vim
+	url = https://github.com/leafgarland/typescript-vim
+[submodule "vim/bundle/scratch.vim"]
+	path = vim/bundle/scratch
+	url = https://github.com/mtth/scratch.vim
