@@ -41,7 +41,7 @@ nnoremap <leader>N :setlocal number! relativenumber!<cr>
 
 " preview window
 set splitbelow
-set previewheight=15
+let g:dispatch_tmux_height = 15
 call setenv('NO_COLOR', '1')
 
 " quickfix list

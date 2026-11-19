@@ -5,7 +5,7 @@ call setenv('REBAR_COLOR', 'none')
 
 function! ErlangDispatch(args) abort
 	execute 'Dispatch rebar3 ' . a:args
-				\ . " 2>&1 | sed -E 's/\\x1b\\[[0-9;]*[A-Za-z]//g'"
+				\ . " 2>&1 | sed -u -E 's/\\x1b\\[[0-9;]*[A-Za-z]//g'"
 endfunction
 
 nnoremap <buffer> <leader>ec :call ErlangDispatch('compile')<cr>
