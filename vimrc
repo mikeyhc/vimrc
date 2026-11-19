@@ -73,9 +73,9 @@ augroup mapping_update | au! | au BufEnter,BufWinEnter * call ArrowMappings() | 
 set statusline=\ %3*%y\ %*%4*%<%f%*%5*\ %{exists('*fugitive#statusline')?fugitive#statusline():''}%*%(\ %2*%m%)%r%*%1*%=%*%5*\ %l%*%2*/%L\ %p%%\ %*%1*\ %5*%v\ %*
 
 " color the vsplit
-set fillchars+=vert:\
+set fillchars+='vert: '
 hi VertSplit ctermfg=235 ctermbg=235
-hi WinSeparator ctermfg=235 ctermfg=235
+hi WinSeparator ctermfg=235 ctermbg=235
 
 " colours
 hi StatusLine   ctermfg=white ctermbg=235
