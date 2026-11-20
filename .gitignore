@@ -1,2 +1,6 @@
 vim/view/
 .VimballRecord
+vim/plugged/
+vim/autoload/plug.vim
+
+*.sw[po]

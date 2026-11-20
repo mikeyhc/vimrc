@@ -86,6 +86,9 @@ hi User3 ctermfg=169        ctermbg=235
 hi User4 ctermfg=lightgreen ctermbg=235
 hi User5 ctermfg=yellow     ctermbg=235
 
+" erlang config
+let g:dispatch_compilers = {'rebar3': 'rebar3'}
+
 " ALE config
 let g:ale_fix_on_save = 1
 let g:ale_linters = {
